@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Movimientos de Inventario</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        header {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 {
+            font-size: 22px;
+            border: 2px solid #6c63ff;
+            padding: 6px 15px;
+            border-radius: 5px;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .btn {
+            background-color: #6c63ff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+        }
+        th {
+            background-color: #eeeeee;
+        }
+        .filter-form {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .filter-form select {
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        .filter-form label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .no-data {
+            text-align: center;
+            margin-top: 20px;
+        }
+        footer {
+            background-color: #2c2c2c;
+            color: #ccc;
+            text-align: center;
+            padding: 20px 10px;
+            margin-top: 60px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Maestranzas Unidos S.A.</h1>
+    <nav>
+        <ul>
+            <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="{% url 'lista_productos' %}"><i class="fas fa-box"></i> Productos</a></li>
+            <li><a href="{% url 'lista_movimientos' %}"><i class="fas fa-exchange-alt"></i> Movimientos</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="container">
+    <h2><i class="fas fa-list"></i> Historial de Movimientos</h2>
+    <a href="{% url 'nuevo_movimiento' %}" class="btn"><i class="fas fa-plus-circle"></i> Registrar Movimiento</a>
+
+    <form method="get" class="filter-form">
+        <label for="producto">Filtrar por producto:</label>
+        <select name="producto" id="producto" onchange="this.form.submit()">
+            <option value="">-- Ver todos --</option>
+            {% for producto in productos %}
+                <option value="{{ producto.id }}" {% if producto_id|default:'' == producto.id|stringformat:"s" %}selected{% endif %}>
+                    {{ producto.nombre }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    {% if movimientos %}
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Usuario</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in movimientos %}
+            <tr>
+                <td>{{ m.fecha|date:"d-m-Y H:i" }}</td>
+                <td>{{ m.producto.nombre }}</td>
+                <td>
+                    {% if m.tipo == 'entrada' %}
+                        <span style="color: green;"><i class="fas fa-arrow-down"></i> Entrada</span>
+                    {% else %}
+                        <span style="color: red;"><i class="fas fa-arrow-up"></i> Salida</span>
+                    {% endif %}
+                </td>
+                <td>{{ m.cantidad }}</td>
+                <td>{{ m.usuario.username }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p class="no-data">No hay movimientos registrados.</p>
+    {% endif %}
+</div>
+
+<footer>
+    <p>&copy; 2025 Maestranzas Unidos S.A. | Todos los derechos reservados</p>
+</footer>
+</body>
+</html>

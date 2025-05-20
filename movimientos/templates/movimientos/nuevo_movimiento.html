@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Movimiento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- ✅ Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        header {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 {
+            font-size: 22px;
+            border: 2px solid #6c63ff;
+            padding: 6px 15px;
+            border-radius: 5px;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #6c63ff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #4c4ae0;
+        }
+        .errorlist {
+            color: red;
+            font-size: 14px;
+            list-style: none;
+            padding-left: 0;
+        }
+        .message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .message.error {
+            background-color: #ffe0e0;
+            color: #a10000;
+            border: 1px solid #a10000;
+        }
+        .message.success {
+            background-color: #e0ffe0;
+            color: #006600;
+            border: 1px solid #006600;
+        }
+        footer {
+            background-color: #2c2c2c;
+            color: #ccc;
+            text-align: center;
+            padding: 20px 10px;
+            margin-top: 60px;
+            font-size: 14px;
+        }
+
+        /* Extra: Estilo para Select2 */
+        .select2-container .select2-selection--single {
+            height: 42px;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Maestranzas Unidos S.A.</h1>
+    <nav>
+        <ul>
+            <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="{% url 'lista_productos' %}"><i class="fas fa-box"></i> Productos</a></li>
+            <li><a href="{% url 'lista_movimientos' %}"><i class="fas fa-exchange-alt"></i> Movimientos</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="container">
+    <h2><i class="fas fa-plus-circle"></i> Registrar Movimiento</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit"><i class="fas fa-save"></i> Guardar</button>
+    </form>
+</div>
+
+<footer>
+    <p>&copy; 2025 Maestranzas Unidos S.A. | Todos los derechos reservados</p>
+</footer>
+
+<!-- ✅ jQuery + Select2 JS -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('select[name="producto"]').select2({
+            placeholder: "Buscar producto...",
+            width: '100%'
+        });
+    });
+</script>
+
+</body>
+</html>

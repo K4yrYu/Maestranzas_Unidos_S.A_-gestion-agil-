@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Productos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 {
+            font-size: 22px;
+            border: 2px solid #6c63ff;
+            padding: 6px 15px;
+            border-radius: 5px;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .btn {
+            background-color: #6c63ff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        .btn:hover {
+            background-color: #4c4ae0;
+        }
+        .filtro-form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .filtro-form select {
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        #buscador {
+            padding: 8px;
+            width: 300px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin: 20px auto;
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+        }
+        th {
+            background-color: #eeeeee;
+        }
+        img {
+            max-height: 70px;
+            border-radius: 8px;
+        }
+        .acciones a {
+            margin: 0 5px;
+            text-decoration: none;
+            color: #6c63ff;
+        }
+        .acciones a:hover {
+            text-decoration: underline;
+        }
+        .alerta {
+            background-color: #ffe5e5;
+            color: #a10000;
+            padding: 12px;
+            border: 2px solid #a10000;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        footer {
+            background-color: #2c2c2c;
+            color: #ccc;
+            text-align: center;
+            padding: 20px 10px;
+            margin-top: 60px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Maestranzas Unidos S.A.</h1>
+    <nav>
+        <ul>
+            <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="{% url 'crear_producto' %}"><i class="fas fa-plus"></i> Agregar</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="container">
+    <h2><i class="fas fa-box"></i> Productos Activos</h2>
+
+    <!-- FILTRO POR CATEGORÍA -->
+    <form method="get" class="filtro-form">
+        <label for="categoria"><strong>Filtrar por categoría:</strong></label>
+        <select name="categoria" id="categoria" onchange="this.form.submit()">
+            <option value="">-- Todas --</option>
+            {% for cat in categorias %}
+                <option value="{{ cat.id }}" {% if categoria_seleccionada == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.nombre }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <!-- BÚSQUEDA POR NOMBRE (JS) -->
+    <input type="text" id="buscador" placeholder="Buscar por nombre...">
+
+    <!-- ALERTAS POR PRODUCTO -->
+    {% with alerta_mostrada=False %}
+    {% for producto in productos_activos %}
+        {% if producto.stock <= producto.stock_minimo %}
+            {% if not alerta_mostrada %}
+            {% endif %}
+            <div class="alerta">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong> {{ producto.nombre }} </strong> está por debajo del stock mínimo
+                (Stock: {{ producto.stock }} | Mínimo: {{ producto.stock_minimo }})
+            </div>
+            {% with alerta_mostrada=True %}{% endwith %}
+        {% endif %}
+    {% endfor %}
+    {% endwith %}
+
+    <!-- TABLA -->
+    {% if productos_activos %}
+    <table id="tabla-productos">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Stock Mínimo</th>
+                <th>Categoría</th>
+                <th>Lote</th>
+                <th>Vencimiento</th>
+                <th>Imagen</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos_activos %}
+            <tr>
+                <td>{{ producto.nombre }}</td>
+                <td>${{ producto.precio }}</td>
+                <td>
+                    {% if producto.stock <= producto.stock_minimo %}
+                        <span style="color: red; font-weight: bold;">
+                            {{ producto.stock }} ⚠️
+                        </span>
+                    {% else %}
+                        {{ producto.stock }}
+                    {% endif %}
+                </td>
+                <td>{{ producto.stock_minimo }}</td>
+                <td>{{ producto.categoria.nombre }}</td>
+                <td>{{ producto.lote }}</td>
+                <td>{{ producto.fecha_vencimiento|date:"d-m-Y"|default:"-" }}</td>
+                <td>
+                    {% if producto.imagen %}
+                        <img src="{{ producto.imagen }}" alt="Imagen">
+                    {% else %}
+                        Sin imagen
+                    {% endif %}
+                </td>
+                <td class="acciones">
+                    <a href="{% url 'editar_producto' producto.id %}"><i class="fas fa-edit"></i></a>
+                    <a href="{% url 'eliminar_producto' producto.id %}"><i class="fas fa-trash"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="text-align:center;">No hay productos activos.</p>
+    {% endif %}
+</div>
+
+<footer>
+    <p>&copy; 2025 Maestranzas Unidos S.A. | Todos los derechos reservados</p>
+</footer>
+
+<!-- SCRIPT DE BÚSQUEDA -->
+<script>
+document.getElementById("buscador").addEventListener("keyup", function () {
+    let filtro = this.value.toLowerCase();
+    let filas = document.querySelectorAll("#tabla-productos tbody tr");
+
+    filas.forEach(function (fila) {
+        let nombre = fila.cells[0].textContent.toLowerCase();
+        fila.style.display = nombre.includes(filtro) ? "" : "none";
+    });
+});
+</script>
+
+</body>
+</html>
