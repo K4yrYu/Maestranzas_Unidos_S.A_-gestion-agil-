@@ -7,6 +7,8 @@ urlpatterns = [
     path('', include('principal.urls')), 
     path('productos/', include('producto.urls')), 
     path('usuarios/', include('usuarios.urls')),
-    path('movimientos/', include('movimientos.urls')),  # ← NUEVA RUTA
+    path('movimientos/', include('movimientos.urls')),
+    path('proveedores/', include('proveedores.urls')),
+
 
 ]

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if modo == "crear" %}Crear Proveedor{% else %}Editar Proveedor{% endif %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 18px;
+            border: 2px solid #6c63ff;
+            padding: 6px 15px;
+            border-radius: 6px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        main {
+            flex: 1;
+            max-width: 650px;
+            min-height: 500px;
+            margin: 40px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        input, textarea {
+            width: 100%;
+            max-width: 500px;
+            height: 45px;
+            padding: 10px 14px;
+            font-size: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-top: 6px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .checkbox-row {
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: #6c63ff;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            margin-top: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            background-color: #584df0;
+        }
+
+        footer {
+            background-color: #2c2c2c;
+            color: #ccc;
+            text-align: center;
+            padding: 20px 10px;
+            font-size: 14px;
+            border-top: 4px solid #6c63ff;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Maestranzas Unidos S.A.</h1>
+    <nav>
+        <ul>
+            <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="{% url 'lista_proveedores' %}"><i class="fas fa-truck"></i> Proveedores</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <h2>
+        {% if modo == "crear" %}
+            <i class="fas fa-truck-loading"></i> Crear Proveedor
+        {% else %}
+            <i class="fas fa-edit"></i> Editar Proveedor
+        {% endif %}
+    </h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <label>Nombre:</label>
+        <input type="text" name="nombre" required value="{{ form.nombre.value|default_if_none:'' }}">
+
+        <label>RUT:</label>
+        <input type="text" name="rut" value="{{ form.rut.value|default_if_none:'' }}">
+
+        <label>Email:</label>
+        <input type="email" name="email" required value="{{ form.email.value|default_if_none:'' }}">
+
+        <label>Teléfono:</label>
+        <input type="text" name="telefono" required value="{{ form.telefono.value|default_if_none:'' }}">
+
+        <label>Dirección:</label>
+        <textarea name="direccion">{{ form.direccion.value|default_if_none:'' }}</textarea>
+
+        <div class="checkbox-row">
+            <input type="checkbox" name="activo" id="activo" {% if form.activo.value or modo == 'crear' %}checked{% endif %}>
+            <label for="activo">¿Activo?</label>
+        </div>
+
+        <button type="submit" class="btn-submit">
+            {% if modo == "crear" %}Crear{% else %}Guardar cambios{% endif %}
+        </button>
+    </form>
+</main>
+
+<footer>
+    <p>&copy; 2025 Maestranzas Unidos S.A. | Todos los derechos reservados</p>
+</footer>
+
+</body>
+</html>

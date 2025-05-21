@@ -136,7 +136,6 @@
 <div class="container">
     <h2><i class="fas fa-box"></i> Productos Activos</h2>
 
-    <!-- FILTRO POR CATEGORÍA -->
     <form method="get" class="filtro-form">
         <label for="categoria"><strong>Filtrar por categoría:</strong></label>
         <select name="categoria" id="categoria" onchange="this.form.submit()">
@@ -147,15 +146,12 @@
         </select>
     </form>
 
-    <!-- BÚSQUEDA POR NOMBRE (JS) -->
     <input type="text" id="buscador" placeholder="Buscar por nombre...">
 
-    <!-- ALERTAS POR PRODUCTO -->
     {% with alerta_mostrada=False %}
     {% for producto in productos_activos %}
         {% if producto.stock <= producto.stock_minimo %}
-            {% if not alerta_mostrada %}
-            {% endif %}
+            {% if not alerta_mostrada %}{% endif %}
             <div class="alerta">
                 <i class="fas fa-exclamation-triangle"></i>
                 <strong> {{ producto.nombre }} </strong> está por debajo del stock mínimo
@@ -166,7 +162,6 @@
     {% endfor %}
     {% endwith %}
 
-    <!-- TABLA -->
     {% if productos_activos %}
     <table id="tabla-productos">
         <thead>
@@ -176,6 +171,7 @@
                 <th>Stock</th>
                 <th>Stock Mínimo</th>
                 <th>Categoría</th>
+                <th>Proveedor</th>
                 <th>Lote</th>
                 <th>Vencimiento</th>
                 <th>Imagen</th>
@@ -198,6 +194,7 @@
                 </td>
                 <td>{{ producto.stock_minimo }}</td>
                 <td>{{ producto.categoria.nombre }}</td>
+                <td>{{ producto.proveedor.nombre|default:"-" }}</td>
                 <td>{{ producto.lote }}</td>
                 <td>{{ producto.fecha_vencimiento|date:"d-m-Y"|default:"-" }}</td>
                 <td>
@@ -224,7 +221,6 @@
     <p>&copy; 2025 Maestranzas Unidos S.A. | Todos los derechos reservados</p>
 </footer>
 
-<!-- SCRIPT DE BÚSQUEDA -->
 <script>
 document.getElementById("buscador").addEventListener("keyup", function () {
     let filtro = this.value.toLowerCase();

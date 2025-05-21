@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Proveedores | Maestranzas Unidos S.A.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 18px;
+            border: 2px solid #6c63ff;
+            padding: 6px 15px;
+            border-radius: 6px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .top-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .btn-add {
+            background-color: #6c63ff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .btn-add:hover {
+            background-color: #4c4ae0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+        }
+
+        table th, table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #6c63ff;
+            color: white;
+        }
+
+        table tr:hover {
+            background-color: #f2f2f2;
+        }
+
+        .edit-link, .disable-link, .restore-link {
+            color: white;
+            padding: 6px 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .edit-link {
+            background-color: #28a745;
+        }
+
+        .disable-link {
+            background-color: #dc3545;
+        }
+
+        .restore-link {
+            background-color: #007bff;
+        }
+
+        footer {
+            background-color: #2c2c2c;
+            color: #ccc;
+            text-align: center;
+            padding: 20px 10px;
+            margin-top: 60px;
+            font-size: 14px;
+            border-top: 4px solid #6c63ff;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Maestranzas Unidos S.A.</h1>
+    <nav>
+        <ul>
+            <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="{% url 'lista_proveedores' %}"><i class="fas fa-truck"></i> Proveedores</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="top-buttons">
+        <h2><i class="fas fa-truck"></i> Proveedores Registrados</h2>
+        <a href="{% url 'crear_proveedor' %}" class="btn-add"><i class="fas fa-plus"></i> Agregar proveedor</a>
+    </div>
+
+    <h3>Activos</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in proveedores_activos %}
+            <tr>
+                <td>{{ p.nombre }}</td>
+                <td>{{ p.email }}</td>
+                <td>{{ p.telefono }}</td>
+                <td>{{ p.direccion }}</td>
+                <td>
+                    <a href="{% url 'editar_proveedor' p.id %}" class="edit-link"><i class="fas fa-edit"></i></a>
+                    <a href="{% url 'desactivar_proveedor' p.id %}" class="disable-link"><i class="fas fa-ban"></i></a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">No hay proveedores activos.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3 style="margin-top:40px;">Inactivos</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in proveedores_inactivos %}
+            <tr>
+                <td>{{ p.nombre }}</td>
+                <td>{{ p.email }}</td>
+                <td>{{ p.telefono }}</td>
+                <td>{{ p.direccion }}</td>
+                <td>
+                    <a href="{% url 'reactivar_proveedor' p.id %}" class="restore-link"><i class="fas fa-undo"></i> Reactivar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">No hay proveedores desactivados.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<footer>
+    <p>&copy; 2025 Maestranzas Unidos S.A. | Todos los derechos reservados</p>
+</footer>
+
+</body>
+</html>
