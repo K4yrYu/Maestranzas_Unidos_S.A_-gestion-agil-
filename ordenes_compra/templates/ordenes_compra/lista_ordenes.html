@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Órdenes de Compra</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #1a1a1a;
+      color: white;
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 20px;
+      border: 2px solid #6c63ff;
+      padding: 6px 15px;
+      border-radius: 5px;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .btn-add {
+      background-color: #6c63ff;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      float: right;
+      margin-bottom: 15px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: center;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #6c63ff;
+      color: white;
+    }
+
+    .estado {
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+
+    .estado.pendiente { color: orange; }
+    .estado.enviada { color: blue; }
+    .estado.recibida { color: green; }
+
+    .acciones a {
+      margin: 0 5px;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .acciones a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      background-color: #2c2c2c;
+      color: #ccc;
+      text-align: center;
+      padding: 20px 10px;
+      margin-top: 60px;
+      font-size: 14px;
+      border-top: 4px solid #6c63ff;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Maestranzas Unidos S.A.</h1>
+  <nav>
+    <ul>
+      <li><a href="{% url 'home' %}">Inicio</a></li>
+      <li><a href="{% url 'lista_ordenes' %}">Órdenes</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="container">
+  <h2>Órdenes de Compra</h2>
+  <a href="{% url 'crear_orden' %}" class="btn-add">+ Nueva Orden</a>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Proveedor</th>
+        <th>Usuario</th>
+        <th>Estado</th>
+        <th>Fecha</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for orden in ordenes %}
+      <tr>
+        <td>#{{ orden.id }}</td>
+        <td>{{ orden.proveedor.nombre }}</td>
+        <td>{{ orden.usuario.username }}</td>
+        <td class="estado {{ orden.estado }}">{{ orden.get_estado_display }}</td>
+        <td>{{ orden.fecha_creacion|date:"d/m/Y H:i" }}</td>
+        <td class="acciones">
+          <a href="{% url 'detalle_orden' orden.id %}">Ver</a>
+          {% if orden.estado != 'recibida' %}
+            | <a href="{% url 'cambiar_estado' orden.id 'enviada' %}">Marcar Enviada</a>
+            | <a href="{% url 'cambiar_estado' orden.id 'recibida' %}">Marcar Recibida</a>
+          {% else %}
+            | <span style="color: gray;">Completada</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6">No hay órdenes registradas.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<footer>
+  <p>&copy; 2025 Maestranzas Unidos S.A. | Todos los derechos reservados</p>
+</footer>
+
+</body>
+</html>

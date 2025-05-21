@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Crear Orden de Compra</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 24px;
+      color: #333;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+      color: #444;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 10px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #6c63ff;
+      color: white;
+    }
+
+    td button {
+      background-color: #dc3545;
+      border: none;
+      color: white;
+      font-weight: bold;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn {
+      display: inline-block;
+      width: 100%;
+      padding: 12px;
+      background-color: #6c63ff;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    .add-line-btn {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .cancel-link {
+      display: inline-block;
+      text-align: center;
+      margin-top: 15px;
+      text-decoration: none;
+      background-color: #999;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    footer {
+      background-color: #2c2c2c;
+      color: #ccc;
+      text-align: center;
+      padding: 20px 10px;
+      margin-top: 60px;
+      font-size: 14px;
+      border-top: 4px solid #6c63ff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Crear Orden de Compra</h2>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <label for="id_proveedor">Proveedor:</label>
+    {{ form.proveedor }}
+
+    <h3>Productos</h3>
+    <table id="tabla-productos">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Quitar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <select name="producto[]" class="producto-select">
+              <option value="">---------</option>
+              {% for p in productos %}
+                <option value="{{ p.id }}" data-proveedor="{{ p.proveedor.id }}">{{ p.nombre }}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td><input type="number" name="cantidad[]" min="1" value="1"></td>
+          <td><button type="button" onclick="quitarFila(this)">❌</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button type="button" class="add-line-btn" onclick="agregarFila()">+ Agregar producto</button>
+    <button type="submit" class="btn">Guardar Orden</button>
+
+    <div style="text-align: center;">
+      <a href="{% url 'lista_ordenes' %}" class="cancel-link">← Cancelar y Volver</a>
+    </div>
+  </form>
+</div>
+
+<footer>
+  <p>&copy; 2025 Maestranzas Unidos S.A. | Todos los derechos reservados</p>
+</footer>
+
+<script>
+function actualizarProductos() {
+  const proveedorId = document.getElementById("id_proveedor").value;
+  document.querySelectorAll(".producto-select").forEach(select => {
+    const selectedValue = select.value;
+    Array.from(select.options).forEach(opt => {
+      if (opt.value === "") return;
+      opt.style.display = (opt.dataset.proveedor === proveedorId) ? "block" : "none";
+    });
+
+    if (selectedValue && select.querySelector(`option[value="${selectedValue}"]`)?.style.display === "none") {
+      select.value = "";
+    }
+  });
+}
+
+function agregarFila() {
+  const tbody = document.querySelector("#tabla-productos tbody");
+  const fila = tbody.querySelector("tr:last-child");
+  const nueva = fila.cloneNode(true);
+  nueva.querySelector('select').value = '';
+  nueva.querySelector('input').value = 1;
+  tbody.appendChild(nueva);
+  actualizarProductos();
+}
+
+function quitarFila(btn) {
+  const fila = btn.closest("tr");
+  const tabla = document.querySelector("#tabla-productos tbody");
+  if (tabla.rows.length > 1) {
+    fila.remove();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("id_proveedor").addEventListener("change", actualizarProductos);
+  actualizarProductos();
+});
+</script>
+
+</body>
+</html>

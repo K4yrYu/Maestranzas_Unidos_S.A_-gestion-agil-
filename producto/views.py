@@ -25,12 +25,12 @@ def lista_productos(request):
     productos_activos = productos.filter(activo=True)
     productos_inactivos = productos.filter(activo=False)
 
-    categorias = Producto.objects.values("categoria__id", "categoria__nombre").distinct()
+    categorias = Categoria.objects.all()  # ✅ Cambio aquí
 
     context = {
         "productos_activos": productos_activos,
         "productos_inactivos": productos_inactivos,
-        "categorias": [c for c in categorias if c["categoria__id"] is not None],
+        "categorias": categorias,
         "categoria_seleccionada": categoria_seleccionada or "",
     }
     return render(request, "producto/lista.html", context)
