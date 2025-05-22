@@ -102,15 +102,6 @@
         .acciones a:hover {
             text-decoration: underline;
         }
-        .alerta {
-            background-color: #ffe5e5;
-            color: #a10000;
-            padding: 12px;
-            border: 2px solid #a10000;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
         footer {
             background-color: #2c2c2c;
             color: #ccc;
@@ -148,20 +139,6 @@
 
     <input type="text" id="buscador" placeholder="Buscar por nombre...">
 
-    {% with alerta_mostrada=False %}
-    {% for producto in productos_activos %}
-        {% if producto.stock <= producto.stock_minimo %}
-            {% if not alerta_mostrada %}{% endif %}
-            <div class="alerta">
-                <i class="fas fa-exclamation-triangle"></i>
-                <strong> {{ producto.nombre }} </strong> está por debajo del stock mínimo
-                (Stock: {{ producto.stock }} | Mínimo: {{ producto.stock_minimo }})
-            </div>
-            {% with alerta_mostrada=True %}{% endwith %}
-        {% endif %}
-    {% endfor %}
-    {% endwith %}
-
     {% if productos_activos %}
     <table id="tabla-productos">
         <thead>
@@ -183,15 +160,7 @@
             <tr>
                 <td>{{ producto.nombre }}</td>
                 <td>${{ producto.precio }}</td>
-                <td>
-                    {% if producto.stock <= producto.stock_minimo %}
-                        <span style="color: red; font-weight: bold;">
-                            {{ producto.stock }} ⚠️
-                        </span>
-                    {% else %}
-                        {{ producto.stock }}
-                    {% endif %}
-                </td>
+                <td>{{ producto.stock }}</td>
                 <td>{{ producto.stock_minimo }}</td>
                 <td>{{ producto.categoria.nombre }}</td>
                 <td>{{ producto.proveedor.nombre|default:"-" }}</td>

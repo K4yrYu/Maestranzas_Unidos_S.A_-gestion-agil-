@@ -124,6 +124,16 @@
   <form method="post">
     {% csrf_token %}
 
+    {% if messages %}
+      <ul style="list-style: none; padding: 0;">
+        {% for message in messages %}
+          <li style="background-color: #ffcaca; color: #a10000; border: 1px solid #a10000; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+            {{ message }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
     <label for="id_proveedor">Proveedor:</label>
     {{ form.proveedor }}
 

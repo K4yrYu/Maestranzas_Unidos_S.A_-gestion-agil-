@@ -9,6 +9,9 @@ import pandas as pd
 from django.http import HttpResponse
 from io import BytesIO
 from datetime import datetime
+from datetime import date, timedelta
+from django.db.models import F
+from django.contrib.auth.decorators import login_required
 
 
 def lista_productos(request):
@@ -36,30 +39,70 @@ def lista_productos(request):
     return render(request, "producto/lista.html", context)
 
 
+from movimientos.models import Movimiento  # ⬅️ Importar modelo de movimiento
+
 def crear_producto(request):
     if request.method == "POST":
         form = ProductoForm(request.POST)
         if form.is_valid():
-            form.save()
+            producto = form.save()
+
+            # ✅ Registrar movimiento si hay stock inicial > 0
+            if producto.stock > 0:
+                Movimiento.objects.create(
+                    producto=producto,
+                    tipo='entrada',
+                    cantidad=producto.stock,
+                    usuario=request.user  # quien lo creó
+                )
+
             messages.success(request, "Producto registrado correctamente.")
             return redirect("lista_productos")
     else:
         form = ProductoForm()
-    return render(request, "producto/formulario.html", {"form": form, "titulo": "Agregar Producto"})
+
+    return render(request, "producto/formulario.html", {
+        "form": form,
+        "titulo": "Agregar Producto"
+    })
+
 
 
 def editar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
+    stock_anterior = producto.stock
+
     if request.method == "POST":
         form = ProductoForm(request.POST, instance=producto)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Producto actualizado correctamente.")
+            producto_actualizado = form.save(commit=False)
+            nuevo_stock = producto_actualizado.stock
+
+            mensaje_base = f"Producto '{producto.nombre}' actualizado correctamente."
+
+            if nuevo_stock != stock_anterior:
+                diferencia = abs(nuevo_stock - stock_anterior)
+                tipo = 'entrada' if nuevo_stock > stock_anterior else 'salida'
+
+                Movimiento.objects.create(
+                    producto=producto,
+                    tipo=tipo,
+                    cantidad=diferencia,
+                    usuario=request.user
+                )
+
+                mensaje_base += f" Stock ajustado automáticamente ({tipo} de {diferencia})."
+
+            producto_actualizado.save()
+            messages.success(request, mensaje_base)
             return redirect("lista_productos")
     else:
         form = ProductoForm(instance=producto)
-    return render(request, "producto/formulario.html", {"form": form, "titulo": "Editar Producto"})
 
+    return render(request, "producto/formulario.html", {
+        "form": form,
+        "titulo": "Editar Producto"
+    })
 
 def eliminar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
@@ -209,3 +252,25 @@ def exportar_inventario_completo(request):
     response = HttpResponse(output.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=Inventario_Completo.xlsx'
     return response
+
+
+@login_required
+def productos_criticos(request):
+    hoy = date.today()
+    umbral = hoy + timedelta(days=30)
+
+    productos_stock_bajo = Producto.objects.filter(
+        activo=True,
+        stock__lte=F('stock_minimo')
+    )
+
+    productos_vencimiento = Producto.objects.filter(
+        activo=True,
+        fecha_vencimiento__isnull=False,
+        fecha_vencimiento__lte=umbral
+    ).order_by('fecha_vencimiento')
+
+    return render(request, 'producto/productos_criticos.html', {
+        'productos_stock_bajo': productos_stock_bajo,
+        'productos_vencimiento': productos_vencimiento,
+    })
