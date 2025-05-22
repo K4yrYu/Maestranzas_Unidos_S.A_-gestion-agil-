@@ -125,7 +125,10 @@
 
 <div class="container">
   <h2>Órdenes de Compra</h2>
-  <a href="{% url 'crear_orden' %}" class="btn-add">+ Nueva Orden</a>
+
+  {% if user.is_superuser %}
+    <a href="{% url 'crear_orden' %}" class="btn-add">+ Nueva Orden</a>
+  {% endif %}
 
   <table>
     <thead>
@@ -148,10 +151,10 @@
         <td>{{ orden.fecha_creacion|date:"d/m/Y H:i" }}</td>
         <td class="acciones">
           <a href="{% url 'detalle_orden' orden.id %}">Ver</a>
-          {% if orden.estado != 'recibida' %}
+          {% if user.is_superuser and orden.estado != 'recibida' %}
             | <a href="{% url 'cambiar_estado' orden.id 'enviada' %}">Marcar Enviada</a>
             | <a href="{% url 'cambiar_estado' orden.id 'recibida' %}">Marcar Recibida</a>
-          {% else %}
+          {% elif orden.estado == 'recibida' %}
             | <span style="color: gray;">Completada</span>
           {% endif %}
         </td>

@@ -3,17 +3,18 @@ from .models import Producto, Categoria
 from .forms import ProductoForm
 from django.contrib import messages
 from django.db.models import F
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from movimientos.models import Movimiento
 import pandas as pd
 from django.http import HttpResponse
 from io import BytesIO
-from datetime import datetime
-from datetime import date, timedelta
-from django.db.models import F
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 
+# ✅ Función para verificar si el usuario es administrador (no solo staff)
+def es_admin(user):
+    return user.is_superuser
 
+@login_required
 def lista_productos(request):
     productos = Producto.objects.all()
     categoria_seleccionada = request.GET.get("categoria")
@@ -28,7 +29,7 @@ def lista_productos(request):
     productos_activos = productos.filter(activo=True)
     productos_inactivos = productos.filter(activo=False)
 
-    categorias = Categoria.objects.all()  # ✅ Cambio aquí
+    categorias = Categoria.objects.all()
 
     context = {
         "productos_activos": productos_activos,
@@ -38,22 +39,19 @@ def lista_productos(request):
     }
     return render(request, "producto/lista.html", context)
 
-
-from movimientos.models import Movimiento  # ⬅️ Importar modelo de movimiento
-
+@user_passes_test(es_admin)
 def crear_producto(request):
     if request.method == "POST":
         form = ProductoForm(request.POST)
         if form.is_valid():
             producto = form.save()
 
-            # ✅ Registrar movimiento si hay stock inicial > 0
             if producto.stock > 0:
                 Movimiento.objects.create(
                     producto=producto,
                     tipo='entrada',
                     cantidad=producto.stock,
-                    usuario=request.user  # quien lo creó
+                    usuario=request.user
                 )
 
             messages.success(request, "Producto registrado correctamente.")
@@ -66,8 +64,7 @@ def crear_producto(request):
         "titulo": "Agregar Producto"
     })
 
-
-
+@user_passes_test(es_admin)
 def editar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     stock_anterior = producto.stock
@@ -104,6 +101,7 @@ def editar_producto(request, id):
         "titulo": "Editar Producto"
     })
 
+@user_passes_test(es_admin)
 def eliminar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     producto.activo = False
@@ -111,7 +109,7 @@ def eliminar_producto(request, id):
     messages.warning(request, f"Producto '{producto.nombre}' fue desactivado.")
     return redirect("lista_productos")
 
-
+@login_required
 def dashboard(request):
     total_productos = Producto.objects.count()
     productos_activos = Producto.objects.filter(activo=True).count()
@@ -135,8 +133,7 @@ def dashboard(request):
 
     return render(request, "producto/dashboard.html", context)
 
-#####3
-
+@user_passes_test(es_admin)
 def exportar_excel_resumen(request):
     now = datetime.now()
 
@@ -172,7 +169,6 @@ def exportar_excel_resumen(request):
         'activo': 'Activo'
     })
 
-    # Formatear fechas como texto legible
     for df in [df_entradas, df_salidas]:
         if 'Fecha' in df.columns:
             df['Fecha'] = pd.to_datetime(df['Fecha']).dt.tz_localize(None).dt.strftime('%Y-%m-%d %H:%M')
@@ -199,6 +195,7 @@ def exportar_excel_resumen(request):
     response['Content-Disposition'] = f'attachment; filename={filename}'
     return response
 
+@user_passes_test(es_admin)
 def exportar_inventario_completo(request):
     productos = Producto.objects.all()
 
@@ -212,27 +209,21 @@ def exportar_inventario_completo(request):
         'activo': 'Activo'
     })
 
-    # Convertir booleano a texto "Sí"/"No"
     df['Activo'] = df['Activo'].apply(lambda x: 'Sí' if x else 'No')
 
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         df.to_excel(writer, sheet_name='Inventario Completo', index=False)
-
         ws = writer.sheets['Inventario Completo']
-
-        # Ajuste automático de columnas
         for idx, col in enumerate(df.columns):
             max_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
             ws.set_column(idx, idx, max_len)
 
-        # Formato condicional: verde para Sí, rojo para No en columna "Activo"
         workbook = writer.book
         formato_si = workbook.add_format({'bg_color': '#C6EFCE', 'font_color': '#006100'})
         formato_no = workbook.add_format({'bg_color': '#FFC7CE', 'font_color': '#9C0006'})
 
-        # Suponiendo que la columna "Activo" está en la columna E (índice 4)
-        fila_inicio = 2  # Excel comienza en 1, y fila 1 es encabezado
+        fila_inicio = 2
         fila_final = len(df) + 1
 
         ws.conditional_format(f'E{fila_inicio}:E{fila_final}', {
@@ -252,7 +243,6 @@ def exportar_inventario_completo(request):
     response = HttpResponse(output.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=Inventario_Completo.xlsx'
     return response
-
 
 @login_required
 def productos_criticos(request):

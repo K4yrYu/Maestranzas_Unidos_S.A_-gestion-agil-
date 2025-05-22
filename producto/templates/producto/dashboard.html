@@ -152,6 +152,7 @@
 
     <canvas id="graficoResumen" height="100"></canvas>
 
+    {% if user.is_superuser %}
     <div style="text-align:center;">
         <a href="{% url 'exportar_excel' %}" class="btn-excel">
             <i class="fas fa-file-excel"></i> Descargar Resumen en Excel
@@ -160,6 +161,7 @@
             <i class="fas fa-boxes"></i> Descargar Inventario Completo
         </a>
     </div>
+    {% endif %}
 </div>
 
 <footer>

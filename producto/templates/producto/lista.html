@@ -119,7 +119,9 @@
     <nav>
         <ul>
             <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Inicio</a></li>
+            {% if user.is_superuser %}
             <li><a href="{% url 'crear_producto' %}"><i class="fas fa-plus"></i> Agregar</a></li>
+            {% endif %}
         </ul>
     </nav>
 </header>
@@ -152,7 +154,9 @@
                 <th>Lote</th>
                 <th>Vencimiento</th>
                 <th>Imagen</th>
+                {% if user.is_superuser %}
                 <th>Acciones</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -173,10 +177,12 @@
                         Sin imagen
                     {% endif %}
                 </td>
+                {% if user.is_superuser %}
                 <td class="acciones">
                     <a href="{% url 'editar_producto' producto.id %}"><i class="fas fa-edit"></i></a>
                     <a href="{% url 'eliminar_producto' producto.id %}"><i class="fas fa-trash"></i></a>
                 </td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>

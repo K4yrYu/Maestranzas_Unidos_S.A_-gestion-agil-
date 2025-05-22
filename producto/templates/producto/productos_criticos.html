@@ -137,13 +137,14 @@
     {% endfor %}
   </table>
 
-  <!-- ✅ Botón para generar órdenes desde críticos -->
+  {% if user.is_superuser %}
   <form method="post" action="{% url 'crear_orden_desde_criticos' %}">
     {% csrf_token %}
     <div class="btn-volver">
       <button type="submit">🛒 Generar Órdenes desde Críticos</button>
     </div>
   </form>
+  {% endif %}
 
   <h3>🕒 Productos próximos a vencer (30 días)</h3>
   <table>
