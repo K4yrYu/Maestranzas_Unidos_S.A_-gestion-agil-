@@ -131,6 +131,7 @@
                 <th>Tipo</th>
                 <th>Cantidad</th>
                 <th>Usuario</th>
+                <th>Motivo</th>
             </tr>
         </thead>
         <tbody>
@@ -147,6 +148,7 @@
                 </td>
                 <td>{{ m.cantidad }}</td>
                 <td>{{ m.usuario.username }}</td>
+                <td>{{ m.motivo|default:"-" }}</td>
             </tr>
             {% endfor %}
         </tbody>

@@ -13,6 +13,8 @@ class Movimiento(models.Model):
     cantidad = models.PositiveIntegerField()
     fecha = models.DateTimeField(auto_now_add=True)
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    motivo = models.CharField(max_length=255, blank=True, null=True)  # Nuevo campo
 
     def __str__(self):
         return f"{self.get_tipo_display()} - {self.producto.nombre} ({self.cantidad})"
+

@@ -10,7 +10,7 @@ class Categoria(models.Model):
     
 class Producto(models.Model):
     nombre = models.CharField(max_length=100)
-    descripcion = models.TextField(blank=True)
+    numero_de_serie = models.PositiveIntegerField(default=0) # actuara como num serie
     precio = models.PositiveIntegerField()
     stock = models.PositiveIntegerField()
     stock_minimo = models.PositiveIntegerField(default=0)

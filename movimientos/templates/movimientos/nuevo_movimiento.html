@@ -54,6 +54,9 @@
         label {
             font-weight: bold;
         }
+        .requerido {
+            color: red;
+        }
         input, select {
             width: 100%;
             padding: 10px;
@@ -101,7 +104,6 @@
             margin-top: 60px;
             font-size: 14px;
         }
-
         /* Extra: Estilo para Select2 */
         .select2-container .select2-selection--single {
             height: 42px;
@@ -134,7 +136,17 @@
 
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {% for field in form %}
+            <p>
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}<span class="requerido">*</span>
+                </label><br>
+                {{ field }}
+                {% if field.errors %}
+                    <div style="color: red;">{{ field.errors }}</div>
+                {% endif %}
+            </p>
+        {% endfor %}
         <button type="submit"><i class="fas fa-save"></i> Guardar</button>
     </form>
 </div>

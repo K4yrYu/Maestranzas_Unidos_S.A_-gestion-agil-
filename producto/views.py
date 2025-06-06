@@ -9,6 +9,7 @@ import pandas as pd
 from django.http import HttpResponse
 from io import BytesIO
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django import forms
 
 # ✅ Función para verificar si el usuario es administrador (no solo staff)
 def es_admin(user):
@@ -45,15 +46,16 @@ def crear_producto(request):
         form = ProductoForm(request.POST)
         if form.is_valid():
             producto = form.save()
+            motivo = form.cleaned_data['motivo']  # Obtén el motivo desde el form
 
             if producto.stock > 0:
                 Movimiento.objects.create(
                     producto=producto,
                     tipo='entrada',
                     cantidad=producto.stock,
-                    usuario=request.user
+                    usuario=request.user,
+                    motivo=motivo  # Usa el motivo del formulario
                 )
-
             messages.success(request, "Producto registrado correctamente.")
             return redirect("lista_productos")
     else:
@@ -63,6 +65,7 @@ def crear_producto(request):
         "form": form,
         "titulo": "Agregar Producto"
     })
+
 
 @user_passes_test(es_admin)
 def editar_producto(request, id):
@@ -264,3 +267,22 @@ def productos_criticos(request):
         'productos_stock_bajo': productos_stock_bajo,
         'productos_vencimiento': productos_vencimiento,
     })
+
+
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ['nombre']
+
+@user_passes_test(es_admin)
+def agregar_categoria(request):
+    if request.method == "POST":
+        form = CategoriaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Categoría creada correctamente.")
+            return redirect('lista_productos')
+    else:
+        form = CategoriaForm()
+
+    return render(request, 'producto/agregar_categoria.html', {'form': form})

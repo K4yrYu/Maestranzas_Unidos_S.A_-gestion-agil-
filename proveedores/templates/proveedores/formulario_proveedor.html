@@ -14,7 +14,6 @@
             flex-direction: column;
             background-color: #f4f4f4;
         }
-
         header {
             background-color: #1a1a1a;
             color: white;
@@ -23,27 +22,23 @@
             justify-content: space-between;
             align-items: center;
         }
-
         header h1 {
             font-size: 18px;
             border: 2px solid #6c63ff;
             padding: 6px 15px;
             border-radius: 6px;
         }
-
         nav ul {
             list-style: none;
             display: flex;
             gap: 25px;
         }
-
         nav ul li a {
             color: white;
             text-decoration: none;
             font-weight: bold;
             font-size: 14px;
         }
-
         main {
             flex: 1;
             max-width: 650px;
@@ -54,20 +49,20 @@
             border-radius: 12px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.1);
         }
-
         h2 {
             text-align: center;
             color: #333;
             margin-bottom: 30px;
         }
-
         label {
             display: block;
             margin-top: 20px;
             font-weight: bold;
             font-size: 15px;
         }
-
+        .requerido {
+            color: red;
+        }
         input, textarea {
             width: 100%;
             max-width: 500px;
@@ -79,12 +74,11 @@
             margin-top: 6px;
             box-sizing: border-box;
         }
-
         textarea {
             resize: vertical;
             min-height: 90px;
+            height: auto;
         }
-
         .checkbox-row {
             margin-top: 25px;
             display: flex;
@@ -93,7 +87,6 @@
             font-weight: bold;
             font-size: 15px;
         }
-
         .btn-submit {
             width: 100%;
             background-color: #6c63ff;
@@ -107,11 +100,9 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-
         .btn-submit:hover {
             background-color: #584df0;
         }
-
         footer {
             background-color: #2c2c2c;
             color: #ccc;
@@ -146,20 +137,20 @@
 
     <form method="post">
         {% csrf_token %}
-        <label>Nombre:</label>
+        <label>Nombre: <span class="requerido">*</span></label>
         <input type="text" name="nombre" required value="{{ form.nombre.value|default_if_none:'' }}">
 
-        <label>RUT:</label>
-        <input type="text" name="rut" value="{{ form.rut.value|default_if_none:'' }}">
+        <label>RUT: <span class="requerido">*</span></label>
+        <input type="text" name="rut" required value="{{ form.rut.value|default_if_none:'' }}">
 
-        <label>Email:</label>
+        <label>Email: <span class="requerido">*</span></label>
         <input type="email" name="email" required value="{{ form.email.value|default_if_none:'' }}">
 
-        <label>Teléfono:</label>
+        <label>Teléfono: <span class="requerido">*</span></label>
         <input type="text" name="telefono" required value="{{ form.telefono.value|default_if_none:'' }}">
 
-        <label>Dirección:</label>
-        <textarea name="direccion">{{ form.direccion.value|default_if_none:'' }}</textarea>
+        <label>Dirección: <span class="requerido">*</span></label>
+        <textarea name="direccion" required>{{ form.direccion.value|default_if_none:'' }}</textarea>
 
         <div class="checkbox-row">
             <input type="checkbox" name="activo" id="activo" {% if form.activo.value or modo == 'crear' %}checked{% endif %}>

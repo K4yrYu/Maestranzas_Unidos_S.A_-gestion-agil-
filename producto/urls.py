@@ -9,7 +9,8 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('dashboard/exportar-excel/', views.exportar_excel_resumen, name='exportar_excel'),
     path('dashboard/exportar-inventario/', views.exportar_inventario_completo, name='exportar_inventario'),
-     path('productos/criticos/', views.productos_criticos, name='productos_criticos'), 
+    path('productos/criticos/', views.productos_criticos, name='productos_criticos'), 
+    path('agregar-categoria/', views.agregar_categoria, name='agregar_categoria'),
 
 
 
